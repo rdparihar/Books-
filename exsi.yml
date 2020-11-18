@@ -1,30 +1,45 @@
-- name: Create a virtual machine on given ESXi hostname
-  community.vmware.vmware_guest:
-    hostname: "{{ vcenter_hostname }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    validate_certs: no
-    folder: /DC1/vm/
-    name: test_vm_0001
-    state: poweredon
-    guest_id: centos64Guest
-    # This is hostname of particular ESXi server on which user wants VM to be deployed
-    esxi_hostname: "{{ esxi_hostname }}"
-    disk:
-    - size_gb: 10
-      type: thin
-      datastore: datastore1
-    hardware:
-      memory_mb: 512
-      num_cpus: 4
-      scsi: paravirtual
-    networks:
-    - name: VM Network
-      mac: aa:bb:dd:aa:00:14
-      ip: 10.10.10.100
-      netmask: 255.255.255.0
-      device_type: vmxnet3
-    wait_for_ip_address: yes
-    wait_for_ip_address_timeout: 600
-  delegate_to: localhost
-  register: deploy_vm
+- name: Create new VM
+  hosts: all
+  gather_facts: false
+  vars:
+    vcenter_hostname: vcenter-hostname
+    vcenter_user: administrator@vsphere.local
+    esxi_hostname: ""
+    vcenter_pass: password
+    esxhost: 192.168.1.100
+    datastore: datastore01
+    vmtemplate: VM01
+    name: "newvm"
+    notes: Ansible Test
+    dumpfacts: False
+  tasks:
+  - name: Create a virtual machine on given ESXi hostname
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      folder: /DC1/vm/
+      name: test_vm_0001
+      state: poweredon
+      guest_id: centos64Guest
+      # This is hostname of particular ESXi server on which user wants VM to be deployed
+      esxi_hostname: "{{ esxi_hostname }}"
+      disk:
+      - size_gb: 10
+        type: thin
+        datastore: datastore1
+      hardware:
+        memory_mb: 512
+        num_cpus: 4
+        scsi: paravirtual
+      networks:
+      - name: VM Network
+        mac: aa:bb:dd:aa:00:14
+        ip: 10.10.10.100
+        netmask: 255.255.255.0
+        device_type: vmxnet3
+      wait_for_ip_address: yes
+      wait_for_ip_address_timeout: 600
+    delegate_to: localhost
+    register: deploy_vm
